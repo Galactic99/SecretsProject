@@ -64,10 +64,9 @@ app.get("/secrets", async (req, res) => {
       const result = await db.query("SELECT secret FROM users WHERE email =$1", [req.user.email]);
       const secret = result.rows[0].secret;
       if (secret) {
-        const secretsResult = await db.query("SELECT content FROM secrets");
-        res.render("secrets.ejs", { secrets: secretsResult.rows });
+        res.render("secrets.ejs", { secret: secret });
       } else{
-        res.render("secrets.ejs", { secrets: "You have no secrets. Submit one now!" });
+        res.render("secrets.ejs", { secret: "You have no secrets. Submit one now!" });
       }
     } catch (error) {
       console.log(error);
@@ -154,8 +153,8 @@ app.post("/submit", async (req, res) => {
   const user = req.user;
   try {
     const result = await db.query(
-      "INSERT INTO secrets (user_id, content) VALUES ($1, $2)",
-      [req.user.id, secret]
+      "Update users SET secret = $1 WHERE email = $2",
+      [secret, req.user.email]
     );
     res.redirect("/secrets");
   } catch (err) {
